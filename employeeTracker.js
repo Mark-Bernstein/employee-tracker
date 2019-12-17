@@ -44,11 +44,9 @@ function runProgram() {
           break;
         case "View all Employees by Department":
           inquireDepartment();
-          viewByDepartment(department);
           break;
         case "View all Employees by Role":
           inquireRole();
-          viewByRole(role);
           break;
         case "Add Employee":
           addEmployee();
@@ -84,7 +82,7 @@ function viewEmployees() {
 
 
 function viewByRole(role) {
-  connection.query("SELECT * FROM role WHERE title=?", [role], function (err, res) {
+  connection.query("SELECT * FROM role WHERE title = ?", [role], function (err, res) {
     if (err) throw err;
 
     // Log all results of the SELECT statement
@@ -169,7 +167,7 @@ async function inquireRole() {
           viewByRole(salesPerson);
           break;
         case "Lead Engingeer":
-          let leadEngineer = "Lead Engingeer";
+          let leadEngineer = "Lead Engineer";
           viewByRole(leadEngineer);
           break;
         case "Software Engineer":
