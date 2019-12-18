@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "maekisk00117ownz", ////////////////////////////////////////////
+  password: "Maekownz22!", ////////////////////////////////////////////
   database: "employee_trackerDB"
 });
 
@@ -92,6 +92,7 @@ function viewByRole(role) {
 }
 
 function viewByDepartment(department) {
+  console.log(department);
   connection.query("SELECT * FROM department WHERE name=?", [department], function (err, res) {
     if (err) throw err;
 
@@ -101,8 +102,8 @@ function viewByDepartment(department) {
   });
 }
 
-async function inquireDepartment() {
-  await inquirer
+function inquireDepartment() {
+  inquirer
     .prompt({
       name: "department",
       type: "list",
@@ -116,7 +117,7 @@ async function inquireDepartment() {
       ]
     })
     .then(function (answer) {
-      switch (answer.action) {
+      switch (answer.department) {
         case "Sales":
           let sales = "Sales";
           viewByDepartment(sales);
@@ -140,8 +141,8 @@ async function inquireDepartment() {
     });
 }
 
-async function inquireRole() {
-  await inquirer
+function inquireRole() {
+  inquirer
     .prompt({
       name: "role",
       type: "list",
@@ -157,7 +158,7 @@ async function inquireRole() {
       ]
     })
     .then(function (answer) {
-      switch (answer.action) {
+      switch (answer.role) {
         case "Sales Lead":
           let salesLead = "Sales Lead";
           viewByRole(salesLead);
