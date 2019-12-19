@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "Maekownz22!", ////////////////////////////////////////////
+  password: "maekisk00117ownz", ////////////////////////////////////////////
   database: "employee_trackerDB"
 });
 
@@ -71,18 +71,15 @@ function viewEmployees() {
   connection.query("SELECT * FROM employee", function (err, res) {
     if (err) throw err;
 
-    // Log all results of the SELECT statement
     console.table(res);
-    //   res.forEach(e => {
-    //     console.log(e.name);
-    //   });
+
     runProgram();
   });
 }
 
 
 function viewByRole(role) {
-  connection.query("SELECT * FROM role WHERE title = ?", [role], function (err, res) {
+  connection.query("SELECT * FROM employee WHERE title = ?", [role], function (err, res) {
     if (err) throw err;
 
     // Log all results of the SELECT statement
@@ -92,8 +89,7 @@ function viewByRole(role) {
 }
 
 function viewByDepartment(department) {
-  console.log(department);
-  connection.query("SELECT * FROM department WHERE name=?", [department], function (err, res) {
+  connection.query("SELECT * FROM employee WHERE department = ?", [department], function (err, res) {
     if (err) throw err;
 
     // Log all results of the SELECT statement
@@ -103,11 +99,22 @@ function viewByDepartment(department) {
 }
 
 function inquireDepartment() {
+  // let departmentName = [];
+  // connection.query("SELECT name FROM department", function (err, res) {
+  //   if (err) throw err;
+
+  //   departmentName = res;
+
+  //   // res.forEach(element => {
+  //   //   departmentName.push(element.title);
+  //   // });
+  // });
+
   inquirer
     .prompt({
-      name: "department",
+      name: "departmentName",
       type: "list",
-      message: "Which role would you like to view?",
+      message: "Which department would you like to view?",
       choices: [
         "Sales",
         "Engineering",
@@ -115,9 +122,10 @@ function inquireDepartment() {
         "Legal",
         "Exit."
       ]
+      // choices: [departmentName]
     })
     .then(function (answer) {
-      switch (answer.department) {
+      switch (answer.departmentName) {
         case "Sales":
           let sales = "Sales";
           viewByDepartment(sales);
@@ -150,8 +158,8 @@ function inquireRole() {
       choices: [
         "Sales Lead",
         "Salesperson",
-        "Lead Engingeer",
         "Software Engineer",
+        "Junior Software Engineer",
         "Accountant",
         "Lawyer",
         "Exit."
@@ -167,13 +175,13 @@ function inquireRole() {
           let salesPerson = "Salesperson";
           viewByRole(salesPerson);
           break;
-        case "Lead Engingeer":
-          let leadEngineer = "Lead Engineer";
-          viewByRole(leadEngineer);
-          break;
         case "Software Engineer":
           let softwareEngineer = "Software Engineer";
           viewByRole(softwareEngineer);
+          break;
+        case "Junior Software Engineer":
+          let juniorSoftwareEngineer = "Junior Software Engineer";
+          viewByRole(juniorSoftwareEngineer);
           break;
         case "Accountant":
           let accountant = "Accountant";
@@ -192,16 +200,15 @@ function inquireRole() {
 
 
 function addEmployee() {
-  let managerNames = [];
-  let managersInfo;
-  connection.query("SELECT * FROM manager", function (err, res) {
-    if (err) throw err;
+  // let managerNames = [];
+  // connection.query("SELECT * FROM manager", function (err, res) {
+  //   if (err) throw err;
 
-    managersInfo = res;
-    res.forEach(element => {
-      managerNames.push(element.first_name + " " + element.last_name);
-    });
-  });
+  //   managersNames = res;
+  //   res.forEach(element => {
+  //     managerNames.push(element.first_name + " " + element.last_name);
+  //   });
+  // });
   inquirer
     .prompt([
       {
@@ -215,48 +222,100 @@ function addEmployee() {
         message: "What is their last name?"
       },
       {
-        name: "role",
+        name: "department",
         type: "list",
-        message: "What is their role?",
-        choices: ["Sales Lead", "Salesperson", "Lead Engingeer", "Software Engineer", "Accountant", "Lawyer"]
+        message: "What is their department?",
+        choices: ["Sales", "Engineering", "Finance", "Legal"]
+      },
+      {
+        name: "title",
+        type: "list",
+        message: "What is their title?",
+        choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Accountant", "Lawyer", "Legal Assistant"]
+      },
+      {
+        name: "salary",
+        type: "input",
+        message: "What is their salary?"
       },
       {
         name: "manager",
         type: "list",
         message: "Who is their manager?",
-        choices: [managerNames, "Has no manager"]
+        choices: ["No manager.", "Null"]
       }
     ])
     .then(function (answer) {
+
+      let newEmployee = {
+        first_name: answer.firstName,
+        last_name: answer.lastName,
+        department: answer.department,
+        title: answer.title,
+        salary: answer.salary,
+        manager: answer.manager
+      }
       // when finished prompting, insert a new item into the db with that info
-      let managerId = saveManagerIdToEmployee(answer.manager, managersInfo);
-      console.log("this is the manager answer", saveManagerIdToEmployee);
-      connection.query(
-        "INSERT INTO employee SET ?",
-        {
-          first_name: answer.name,
-          last_name: answer.lastName,
-          role_id: answer.role,
-          manager_id: managerId
-        },
-        function (err) {
-          if (err) throw err;
-        }
+      connection.query("INSERT INTO employee SET ?", newEmployee, function (err) {
+        if (err) throw err;
+
+        runProgram();
+      }
       );
     });
-  runProgram();
 }
 
 function removeEmployee() {
-
-  runProgram();
+  inquirer
+    .prompt([
+      {
+        name: "employeeName",
+        type: "list",
+        message: "Which employee would you like to remove?",
+        choices: ["Matt", "Null"]//employeeListArray here <-------------------------------------
+      }
+    ])
+    .then(function(answer) {
+      // when finished prompting, insert a new item into the db with that info
+      connection.query(
+        "DELETE FROM employee WHERE first_name = ? ", [answer.employeeName], function(err) {
+          if (err) throw err;
+        }
+      );
+      runProgram();
+    });
 }
 
 
 function updateRole() {
-
-  runProgram();
-}
+  inquirer
+    .prompt([
+      {
+        name: "first_name",
+        type: "list",
+        message: "Which employee would you like to update?",
+        choices: [
+          "Matt",
+          "Exit."
+        ],
+      },
+      {
+        name: "role",
+        type: "list",
+        message: "What is their new role?",
+        choices: ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Accountant", "Lawyer", "Legal Assistant"]
+      }
+    ])
+    .then(function (answer) {
+      connection.query(
+        "UPDATE employee SET title = ? WHERE first_name = ?", [answer.role, answer.first_name],
+        function (err, res) {
+          if (err) throw err;
+        }
+      );
+      runProgram();
+    });
+};
 
 
 /* What would you like to do? (initial prompt)
