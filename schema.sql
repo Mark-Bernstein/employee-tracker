@@ -3,6 +3,7 @@ DROP DATABASE IF EXISTS employee_trackerDB;
 CREATE DATABASE employee_trackerDB;
 
 USE employee_trackerDB;
+--------------------------------
 
 CREATE TABLE department (
   id INT NOT NULL AUTO_INCREMENT,
@@ -27,12 +28,18 @@ CREATE TABLE employee (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE manager (
+  id int NOT NULL AUTO_INCREMENT,
+  first_name varchar (30) NOT NULL,
+  last_name varchar (30) NOT NULL,
+  PRIMARY KEY (id)
+);
+--------------------------------
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Mark", "Bernstein", "Software Engineer", "Krystal Lin");
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Bob", "Burns", "Junior Software Engineer", "Mark Bernstein");
-
 ---------------------------------
 
 INSERT INTO department (name)
@@ -46,7 +53,6 @@ VALUES ("Finance");
 
 INSERT INTO department (name)
 VALUES ("Legal");
-
 ---------------------------------
 
 INSERT INTO role (title, salary, department_id)
@@ -67,6 +73,14 @@ VALUES ("Accountant", 125000, "Finance");
 INSERT INTO role (title, salary, department_id)
 VALUES ("Lawyer", 190000, "Legal");
 
+INSERT INTO manager (first_name, last_name)
+VALUES ("Bill", "Brown");
+
+INSERT INTO manager (first_name, last_name)
+VALUES ("Jessica", "Jackson");
+
+----------------------------------
 SELECT * FROM employee;
 SELECT * FROM department;
 SELECT * FROM role;
+SELECT * FROM manager;

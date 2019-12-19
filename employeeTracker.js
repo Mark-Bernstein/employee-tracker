@@ -191,7 +191,58 @@ async function inquireRole() {
 
 
 function addEmployee() {
+  let managerNames = [];
+  let managersInfo;
+  connection.query("SELECT * FROM manager", function (err, res) {
+    if (err) throw err;
 
+    managersInfo = res;
+    res.forEach(element => {
+      managerNames.push(element.first_name + " " + element.last_name);
+    });
+  });
+  inquirer
+    .prompt([
+      {
+        name: "firstName",
+        type: "input",
+        message: "What is their first name?"
+      },
+      {
+        name: "lastName",
+        type: "input",
+        message: "What is their last name?"
+      },
+      {
+        name: "role",
+        type: "list",
+        message: "What is their role?",
+        choices: ["Sales Lead", "Salesperson", "Lead Engingeer", "Software Engineer", "Accountant", "Lawyer"]
+      },
+      {
+        name: "manager",
+        type: "list",
+        message: "Who is their manager?",
+        choices: [managerNames, "Has no manager"]
+      }
+    ])
+    .then(function (answer) {
+      // when finished prompting, insert a new item into the db with that info
+      let managerId = saveManagerIdToEmployee(answer.manager, managersInfo);
+      console.log("this is the manager answer", saveManagerIdToEmployee);
+      connection.query(
+        "INSERT INTO employee SET ?",
+        {
+          first_name: answer.name,
+          last_name: answer.lastName,
+          role_id: answer.role,
+          manager_id: managerId
+        },
+        function (err) {
+          if (err) throw err;
+        }
+      );
+    });
   runProgram();
 }
 
