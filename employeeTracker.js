@@ -266,17 +266,29 @@ function addEmployee() {
 }
 
 function removeEmployee() {
+  let employeeNames = [];
+  connection.query("SELECT * FROM employee", function (err, res) {
+    if (err) throw err;
+
+    employeeNames = res;
+    employeeNames.forEach(element => {
+      employeeNames.push(element.first_name + " " + element.last_name);
+      console.log("inside forEach loop", employeeNames);
+    });
+  });
+
   inquirer
     .prompt([
       {
         name: "employeeName",
         type: "list",
         message: "Which employee would you like to remove?",
-        choices: ["Matt", "Null"]//employeeListArray here <-------------------------------------
+        choices: [employeeNames] //employeeListArray here <-------------------------------------
       }
     ])
     .then(function(answer) {
       // when finished prompting, insert a new item into the db with that info
+      console.log("inside .then", employeeNames);
       connection.query(
         "DELETE FROM employee WHERE first_name = ? ", [answer.employeeName], function(err) {
           if (err) throw err;
