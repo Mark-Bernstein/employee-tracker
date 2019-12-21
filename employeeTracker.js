@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "maekisk00117ownz", ////////////////////////////////////////////
+  password: "Maekownz22!", ////////////////////////////////////////////
   database: "employee_trackerDB"
 });
 
@@ -19,6 +19,19 @@ connection.connect(function (err) {
   if (err) throw err;
   runProgram();
 });
+
+//Function that returns all of the data from the role table
+getRoleResponse = function () {
+  return new Promise(function (resolve, reject) {
+    connection.query("SELECT * FROM roles", function (err, res) {
+      if (err) throw err;
+
+      // return res;
+      resolve(res);
+    });
+  });
+};
+
 
 function runProgram() {
   inquirer
@@ -200,6 +213,7 @@ function inquireRole() {
 
 
 function addEmployee() {
+
   // let managerNames = [];
   // connection.query("SELECT * FROM manager", function (err, res) {
   //   if (err) throw err;
@@ -209,6 +223,7 @@ function addEmployee() {
   //     managerNames.push(element.first_name + " " + element.last_name);
   //   });
   // });
+
   inquirer
     .prompt([
       {
@@ -259,6 +274,7 @@ function addEmployee() {
       connection.query("INSERT INTO employee SET ?", newEmployee, function (err) {
         if (err) throw err;
 
+        viewEmployees();
         runProgram();
       }
       );
@@ -266,36 +282,37 @@ function addEmployee() {
 }
 
 function removeEmployee() {
-  let employeeNames = [];
-  connection.query("SELECT * FROM employee", function (err, res) {
-    if (err) throw err;
+  connection.query("SELECT * FROM employee", function (req, res) {
+    // if (err) throw err;
 
-    employeeNames = res;
-    employeeNames.forEach(element => {
-      employeeNames.push(element.first_name + " " + element.last_name);
-      console.log("inside forEach loop", employeeNames);
+    const employeeNames = res.map(employee => {
+      return employee.first_name +" " + employee.last_name
     });
-  });
+    console.log(employeeNames)
 
-  inquirer
-    .prompt([
-      {
-        name: "employeeName",
-        type: "list",
-        message: "Which employee would you like to remove?",
-        choices: [employeeNames] //employeeListArray here <-------------------------------------
-      }
-    ])
-    .then(function(answer) {
-      // when finished prompting, insert a new item into the db with that info
-      console.log("inside .then", employeeNames);
-      connection.query(
-        "DELETE FROM employee WHERE first_name = ? ", [answer.employeeName], function(err) {
-          if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: "employeeName",
+          type: "list",
+          message: "Which employee would you like to remove?",
+          choices: employeeNames //employeeListArray here <-------------------------------------
+          //choices array documentation
+
         }
-      );
-      runProgram();
-    });
+      ])
+      .then(function (answer) {
+        // when finished prompting, insert a new item into the db with that info
+        console.log("inside .then", answer.employeeName);
+        const fullName = answer.employeeName.split(" ")
+        connection.query(
+          "DELETE FROM employee WHERE ? AND ?", [{ first_name: fullName[0]}, {last_name: fullName[1] }], function (err) {
+            if (err) console.log(err);
+          }
+        );
+        runProgram();
+      });
+  })
 }
 
 
@@ -329,19 +346,3 @@ function updateRole() {
     });
 };
 
-
-/* What would you like to do? (initial prompt)
-_________________________
-View all Employees (shows the table)
-View all Employees by Department (filters by department and shows table)
-View all Employees by Role (filters by role and shows table)
-Add Employee
-  -What is the employee's first name?
-  -What is the employee's last name?
-  -What is the employee's role?
-  -Who is the employee's manager?
-  -What would you like to do? (starts over to initial prompt)
-Remove Employee
-Update Employee
-Update Employee Role
-Update Employee Manager (BONUS, not REQUIRED) */
